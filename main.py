@@ -3,6 +3,27 @@ from pathlib import Path
 import argparse
 
 
+def extract_wind_field(ds):
+    """
+    Given the xarray.Dataset from load_wind_field, return a dict with:
+      - lat, lon: 2D arrays
+      - speed: 2D array (si10)
+      - direction: 2D array (wdir10)
+    """
+
+    lat = ds["latitude"]
+    lon = ds["longitude"]
+    speed = ds["si10"]
+    direction = ds["wdir10"]
+
+    return {
+        "lat": lat,
+        "lon": lon,
+        "speed": speed,
+        "direction": direction,
+    }
+
+
 def load_wind_field(run_time):
     '''
     Returns an xrray dataset with
@@ -43,6 +64,13 @@ def main():
     print('-- Diagnostics -- Coordinates')
     print(ds.coords)
     print('-- Diagnostics --')
+
+    # Extract wind field
+    wind_field = extract_wind_field(ds)
+    print(f'Min wind speed: {wind_field["speed"].min().item()}')
+    print(f'Max wind speed: {wind_field["speed"].max().item()}')
+    print(f'Min wind direction: {wind_field["direction"].min().item()}')
+    print(f'Max wind direction: {wind_field["direction"].max().item()}')
 
     # Make an output directory
     out_dir = Path("data")
