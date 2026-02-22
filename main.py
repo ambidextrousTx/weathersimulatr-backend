@@ -52,7 +52,10 @@ def main():
     print("Hello from weathersimulatr-backend!")
     parser = argparse.ArgumentParser(
         description='Process weather data for visualization')
-    parser.add_argument('timestamp', type=str,
+    parser.add_argument('-t',
+                        '--timestamp',
+                        default="2017-08-26T03:00",
+                        type=str,
                         help='the time stamp for which to get data')
     args = parser.parse_args()
 
