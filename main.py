@@ -1,6 +1,41 @@
 from herbie import Herbie
 from pathlib import Path
 import argparse
+import xarray as xr
+
+TEXAS_LAT_MIN = 25.0
+TEXAS_LAT_MAX = 36.5
+TEXAS_LON_MIN = 253.4
+TEXAS_LON_MAX = 266.5  # -106.6 to -93.5
+
+
+def crop_harvey_texas(ds, step=5):
+    """
+    Crop the full HRRR CONUS field to a Texas/Harvey bounding box,
+    and subsample every `step` grid points in y and x.
+    """
+
+    lat = ds["latitude"]
+    lon = ds["longitude"]
+
+    # Texas-like bounding box in the 0–360 longitude domain
+    lat_min, lat_max = TEXAS_LAT_MIN, TEXAS_LAT_MAX
+    lon_min, lon_max = TEXAS_LON_MIN, TEXAS_LON_MAX
+
+    mask = (
+        (lat >= lat_min)
+        & (lat <= lat_max)
+        & (lon >= lon_min)
+        & (lon <= lon_max)
+    )
+
+    # Mask all variables, then drop points outside box
+    ds_box = ds.where(mask, drop=True)
+
+    # Subsample to make the grid lighter for the frontend
+    ds_sub = ds_box.isel(y=slice(0, None, step), x=slice(0, None, step))
+
+    return ds_sub
 
 
 def extract_wind_field(ds):
@@ -60,6 +95,7 @@ def main():
     args = parser.parse_args()
 
     ds = load_wind_field(args.timestamp)
+    ds = crop_harvey_texas(ds, step=5)
     print('-- Diagnostics --')
     print(ds)
     print('-- Diagnostics -- Dimensions')
