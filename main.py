@@ -38,6 +38,33 @@ def crop_harvey_texas(ds, step=5):
     return ds_sub
 
 
+def wind_payload_from_dataset(ds):
+    """
+    Turn cropped ds into a JSON-serializable payload.
+    Note: as-list conversion is only for debugging / first pass;
+    we’ll optimize later.
+    """
+
+    wind = extract_wind_field(ds)
+    lat = wind["lat"].values
+    lon = wind["lon"].values
+    speed = wind["speed"].values
+    direction = wind["direction"].values
+
+    return {
+        "time": str(ds["valid_time"].values.item()),
+        "shape": {
+            "y": lat.shape[0],
+            "x": lat.shape[1],
+        },
+        "lat": lat.tolist(),
+        "lon": lon.tolist(),
+        "speed": speed.tolist(),
+        "direction": direction.tolist(),
+    }
+
+
+
 def extract_wind_field(ds):
     """
     Given the xarray.Dataset from load_wind_field, return a dict with:
