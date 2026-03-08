@@ -64,7 +64,6 @@ def wind_payload_from_dataset(ds):
     }
 
 
-
 def extract_wind_field(ds):
     """
     Given the xarray.Dataset from load_wind_field, return a dict with:
@@ -110,6 +109,16 @@ def load_wind_field(run_time):
     return ds_out
 
 
+def print_diagnostics(ds):
+    print('-- Diagnostics --')
+    print(ds)
+    print('-- Diagnostics -- Dimensions')
+    print(ds.dims)
+    print('-- Diagnostics -- Coordinates')
+    print(ds.coords)
+    print('-- Diagnostics --')
+
+
 def main():
     print("Hello from weathersimulatr-backend!")
     parser = argparse.ArgumentParser(
@@ -121,22 +130,15 @@ def main():
                         help='the time stamp for which to get data')
     args = parser.parse_args()
 
-    ds = load_wind_field(args.timestamp)
-    ds = crop_harvey_texas(ds, step=5)
-    print('-- Diagnostics --')
-    print(ds)
-    print('-- Diagnostics -- Dimensions')
-    print(ds.dims)
-    print('-- Diagnostics -- Coordinates')
-    print(ds.coords)
-    print('-- Diagnostics --')
+    dataset = load_wind_field(args.timestamp)
+    dataset = crop_harvey_texas(dataset, step=5)
+    # print_diagnostics(dataset)
 
-    # Extract wind field
-    wind_field = extract_wind_field(ds)
-    print(f'Min wind speed: {wind_field["speed"].min().item()}')
-    print(f'Max wind speed: {wind_field["speed"].max().item()}')
-    print(f'Min wind direction: {wind_field["direction"].min().item()}')
-    print(f'Max wind direction: {wind_field["direction"].max().item()}')
+    # Extract wind payload
+    wind_payload = wind_payload_from_dataset(dataset)
+    print(f'Payload shape: {wind_payload["shape"]}')
+    print(f'Min speed: {min(wind_payload["speed"])}')
+    print(f'Max speed: {max(wind_payload["speed"])}')
 
     # Make an output directory
     out_dir = Path("data")
@@ -145,7 +147,7 @@ def main():
     # Simple naming scheme
     out_path = out_dir / f"wind_{args.timestamp.replace(':', '').replace('-', '').replace('T', '_')}.nc"
 
-    ds.to_netcdf(out_path)
+    dataset.to_netcdf(out_path)
 
     print(f"Saved wind field to {out_path}")
 
