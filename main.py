@@ -7,6 +7,7 @@ TEXAS_LAT_MIN = 25.0
 TEXAS_LAT_MAX = 36.5
 TEXAS_LON_MIN = 253.4
 TEXAS_LON_MAX = 266.5  # -106.6 to -93.5
+HARVEY_TX_LANDFALL_TIME = "2017-08-26T03:00"
 
 
 def crop_harvey_texas(ds, step=5):
@@ -125,7 +126,7 @@ def main():
         description='Process weather data for visualization')
     parser.add_argument('-t',
                         '--timestamp',
-                        default="2017-08-26T03:00",
+                        default=HARVEY_TX_LANDFALL_TIME,
                         type=str,
                         help='the time stamp for which to get data')
     args = parser.parse_args()
