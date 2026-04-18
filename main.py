@@ -67,7 +67,7 @@ def wind_payload_from_dataset(ds):
 
 def extract_wind_field(ds):
     """
-    Given the xarray.Dataset from load_wind_field, return a dict with:
+    Given the xarray.Dataset from load_wind_field_for_timestamp, return a dict with:
       - lat, lon: 2D arrays
       - speed: 2D array (si10)
       - direction: 2D array (wdir10)
@@ -86,12 +86,12 @@ def extract_wind_field(ds):
     }
 
 
-def load_wind_field(run_time):
+def load_wind_field_for_timestamp(timestamp_of_interest):
     '''
     Returns an xrray dataset with
     u10, v10, wind_speed, wind_dir, lat, lon
     '''
-    H = Herbie(run_time, model='hrrr', product='sfc', fxx=0)
+    H = Herbie(timestamp_of_interest, model='hrrr', product='sfc', fxx=0)
 
     # Look at the GRIB2 file contents
     # H.inventory()
@@ -131,15 +131,15 @@ def main():
                         help='the time stamp for which to get data')
     args = parser.parse_args()
 
-    dataset = load_wind_field(args.timestamp)
-    dataset = crop_harvey_texas(dataset, step=5)
-    # print_diagnostics(dataset)
+    wind_field_dataset = load_wind_field_for_timestamp(args.timestamp)
+    harvey_wind_dataset = crop_harvey_texas(wind_field_dataset, step=5)
+    # print_diagnostics(harvey_wind_dataset)
 
     # Extract wind payload
-    wind_payload = wind_payload_from_dataset(dataset)
-    print(f'Payload shape: {wind_payload["shape"]}')
-    print(f'Min speed: {min(wind_payload["speed"])}')
-    print(f'Max speed: {max(wind_payload["speed"])}')
+    harvey_wind_payload = wind_payload_from_dataset(harvey_wind_dataset)
+    print(f'Payload shape: {harvey_wind_payload["shape"]}')
+    print(f'Min speed: {min(harvey_wind_payload["speed"])}')
+    print(f'Max speed: {max(harvey_wind_payload["speed"])}')
 
     # Make an output directory
     out_dir = Path("data")
@@ -148,9 +148,9 @@ def main():
     # Simple naming scheme
     out_path = out_dir / f"wind_{args.timestamp.replace(':', '').replace('-', '').replace('T', '_')}.nc"
 
-    dataset.to_netcdf(out_path)
+    harvey_wind_dataset.to_netcdf(out_path)
 
-    print(f"Saved wind field to {out_path}")
+    print(f"Saved cropped wind field to {out_path}")
 
 
 if __name__ == "__main__":

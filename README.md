@@ -10,3 +10,8 @@ In particular, fetches and processes NWP data for Hurricane Harvey that hit the
 Texas coast on 2017-08-26T03:00
 
 The data is stored locally under the folder data/, which has been .gitignored
+
+## To run:
+```bash
+$ uv run main.py [timestamp]
+```
