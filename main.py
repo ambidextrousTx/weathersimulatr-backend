@@ -1,7 +1,6 @@
 from herbie import Herbie
 from pathlib import Path
 import argparse
-import xarray as xr
 
 TEXAS_LAT_MIN = 25.0
 TEXAS_LAT_MAX = 36.5
@@ -88,7 +87,7 @@ def extract_wind_field(ds):
 
 def load_wind_field_for_timestamp(timestamp_of_interest):
     '''
-    Returns an xrray dataset with
+    Returns an xarray dataset with
     u10, v10, wind_speed, wind_dir, lat, lon
     '''
     H = Herbie(timestamp_of_interest, model='hrrr', product='sfc', fxx=0)
