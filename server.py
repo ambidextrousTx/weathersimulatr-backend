@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pathlib import Path
+import dataprocessing as dp
 import xarray as xr
 
 app = FastAPI()
@@ -20,7 +21,8 @@ def load_netcdf():
 def get_wind_harvey():
     try:
         data = load_netcdf()
-        return JSONResponse(content=data)
+        harvey_wind_payload = dp.wind_payload_from_dataset(data)
+        return JSONResponse(content=harvey_wind_payload)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
